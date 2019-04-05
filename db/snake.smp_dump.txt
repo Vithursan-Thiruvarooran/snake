@@ -1,0 +1,14 @@
+
+State Machine - |snake|control:C0|current_state
+Name current_state.S_DRAW_SNAKE_APPLE current_state.S_UPDATE_SNAKE_APPLE current_state.S_INITIALIZE_START current_state.S_DRAW_BOTTOM_BORDER current_state.S_INITIALIZE_BOTTOM_BORDER current_state.S_DRAW_RIGHT_BORDER current_state.S_INITIALIZE_RIGHT_BORDER current_state.S_DRAW_LEFT_BORDER current_state.S_INITIALIZE_LEFT_BORDER current_state.S_DRAW_TOP_BORDER current_state.S_INITIALIZE_TOP_BORDER 
+current_state.S_INITIALIZE_TOP_BORDER 0 0 0 0 0 0 0 0 0 0 0 
+current_state.S_DRAW_TOP_BORDER 0 0 0 0 0 0 0 0 0 1 1 
+current_state.S_INITIALIZE_LEFT_BORDER 0 0 0 0 0 0 0 0 1 0 1 
+current_state.S_DRAW_LEFT_BORDER 0 0 0 0 0 0 0 1 0 0 1 
+current_state.S_INITIALIZE_RIGHT_BORDER 0 0 0 0 0 0 1 0 0 0 1 
+current_state.S_DRAW_RIGHT_BORDER 0 0 0 0 0 1 0 0 0 0 1 
+current_state.S_INITIALIZE_BOTTOM_BORDER 0 0 0 0 1 0 0 0 0 0 1 
+current_state.S_DRAW_BOTTOM_BORDER 0 0 0 1 0 0 0 0 0 0 1 
+current_state.S_INITIALIZE_START 0 0 1 0 0 0 0 0 0 0 1 
+current_state.S_UPDATE_SNAKE_APPLE 0 1 0 0 0 0 0 0 0 0 1 
+current_state.S_DRAW_SNAKE_APPLE 1 0 0 0 0 0 0 0 0 0 1 
