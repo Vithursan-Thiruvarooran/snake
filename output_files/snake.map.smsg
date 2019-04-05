@@ -1,0 +1,3 @@
+Warning (10268): Verilog HDL information at snake.v(112): always construct contains both blocking and non-blocking assignments File: /cmshome/ahmed230/Desktop/snake/snake.v Line: 112
+Info (10281): Verilog HDL Declaration information at snake.v(25): object "HEX0" differs only in case from object "hex0" in the same scope File: /cmshome/ahmed230/Desktop/snake/snake.v Line: 25
+Warning (10268): Verilog HDL information at snake.v(502): always construct contains both blocking and non-blocking assignments File: /cmshome/ahmed230/Desktop/snake/snake.v Line: 502

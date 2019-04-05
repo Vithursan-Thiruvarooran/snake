@@ -1,0 +1,330 @@
+// Part 2 skeleton
+
+module part2
+	(
+		CLOCK_50,						//	On Board 50 MHz
+		// Your inputs and outputs here
+        KEY,
+        SW,
+		// The ports below are for the VGA output.  Do not change.
+		VGA_CLK,   						//	VGA Clock
+		VGA_HS,							//	VGA H_SYNC
+		VGA_VS,							//	VGA V_SYNC
+		VGA_BLANK_N,						//	VGA BLANK
+		VGA_SYNC_N,						//	VGA SYNC
+		VGA_R,   						//	VGA Red[9:0]
+		VGA_G,	 						//	VGA Green[9:0]
+		VGA_B   						//	VGA Blue[9:0]
+	);
+
+	input			CLOCK_50;				//	50 MHz
+	input   [9:0]   SW;
+	input   [3:0]   KEY;
+
+	// Declare your inputs and outputs here
+	// Do not change the following outputs
+	output			VGA_CLK;   				//	VGA Clock
+	output			VGA_HS;					//	VGA H_SYNC
+	output			VGA_VS;					//	VGA V_SYNC
+	output			VGA_BLANK_N;				//	VGA BLANK
+	output			VGA_SYNC_N;				//	VGA SYNC
+	output	[9:0]	VGA_R;   				//	VGA Red[9:0]
+	output	[9:0]	VGA_G;	 				//	VGA Green[9:0]
+	output	[9:0]	VGA_B;   				//	VGA Blue[9:0]
+	
+	wire resetn;
+	assign resetn = KEY[0];
+	
+	// Create the colour, x, y and writeEn wires that are inputs to the controller.
+	wire [2:0] colour;
+	wire [7:0] x;
+	wire [6:0] y;
+	wire writeEn;
+
+	// Create an Instance of a VGA controller - there can be only one!
+	// Define the number of colours as well as the initial background
+	// image file (.MIF) for the controller.
+	vga_adapter VGA(
+			.resetn(resetn),
+			.clock(CLOCK_50),
+			.colour(colour),
+			.x(x),
+			.y(y),
+			.plot(writeEn),
+			/* Signals for the DAC to drive the monitor. */
+			.VGA_R(VGA_R),
+			.VGA_G(VGA_G),
+			.VGA_B(VGA_B),
+			.VGA_HS(VGA_HS),
+			.VGA_VS(VGA_VS),
+			.VGA_BLANK(VGA_BLANK_N),
+			.VGA_SYNC(VGA_SYNC_N),
+			.VGA_CLK(VGA_CLK));
+		defparam VGA.RESOLUTION = "160x120";
+		defparam VGA.MONOCHROME = "FALSE";
+		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
+		defparam VGA.BACKGROUND_IMAGE = "black.mif";
+			
+	// Put your code here. Your code should produce signals x,y,colour and writeEn/plot
+	// for the VGA controller, in addition to any other functionality your design may require.
+    
+    wire load;
+    wire update; 
+    wire [3:0] counter;
+
+    integer count, size, body_segment;
+    size = 0;
+
+    reg [7:0] snakeX [0:100];
+    reg [6:0] snakeY [0:100];
+
+
+    Clock_divider update_clock(
+        .clock_in(CLOCK_50),
+        .clock_out(update)
+    );
+
+    direction = 5'b10000;
+
+    // CODE COPIED 
+    always@(posedge update)
+    begin
+        for(count = size; count > 0; count = count - 1)
+            begin
+                if(count1 <= size - 1)
+                begin
+                    snakeX[count] = snakeX[count - 1];
+                    snakeY[count] = snakeY[count - 1];
+                end
+            end
+        case(direction)
+            5'b00010: snakeY[0] <= (snakeY[0] - 1);
+            5'b00100: snakeX[0] <= (snakeX[0] - 1);
+            5'b01000: snakeY[0] <= (snakeY[0] + 1);
+            5'b10000: snakeX[0] <= (snakeX[0] + 1);
+            endcase 
+        end
+    // END OF COPIED CODE
+
+
+    //CHECK COLLISIONS 
+
+    assign enable = ~update;
+    snake_body_counter counter(
+        .(body_segment),
+        .(enable),
+        .(CLOCK_50),
+        .(resetn)
+    );
+
+
+    assign x = snakeX[body_segment];
+    assign y = snakeY[body_segment];
+
+    // Instansiate datapath
+	// datapath d0(...);
+	//datapath d0(
+	//	.clk(CLOCK_50),
+    //		.resetn(resetn),
+	//	.load(load),
+	//	.data_in(SW[6:0]),
+	//	.colour(SW[9:7]),
+	//	.enable(enable),
+	//	.X(x),
+	//	.Y(y),
+	//	.COL(colour),
+	//	.counter(counter)
+	);
+
+    // Instansiate FSM control
+    // control c0(...);
+    //control c0(
+    //	.clk(CLOCK_50),
+    //	.resetn(resetn),
+    //	.key1(KEY[1]),
+    //	.key3(KEY[3]),
+    //	.counter(counter),
+    //	.writeEN(writeEN),
+    //	.enable(enable),
+    //	.load(load)
+    //);
+    
+endmodule
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+module control(
+    input clk,
+    input resetn,
+    input key1,
+    input key3,
+    input counter;
+    output reg writeEN,
+    output reg enable,
+    output reg load
+    );
+
+    input [3:0] counter;
+    reg [5:0] current_state, next_state; 
+    
+    localparam  S_LOAD_Y        = 5'd0,
+                S_LOAD_X  	    = 5'd1,
+                S_PLOT          = 5'd2,
+         
+    
+    // Next state logic aka our state table
+    always@(*)
+    begin: state_table 
+            case (current_state)
+                S_LOAD_Y: next_state = key3 ? S_LOAD_X : S_LOAD_Y;
+                S_LOAD_X: next_state = key1 ? S_PLOT : S_LOAD_B; 
+                S_PLOT: next_state =  &counter ? S_LOAD_Y : S_PLOT;
+            default:     next_state = S_LOAD_Y;
+        endcase
+    end // state_table
+   
+
+    // Output logic aka all of our datapath control signals
+    always @(*)
+    begin: enable_signals
+        // By default make all our signals 0
+        enable = 1'b0;
+        writeEN = 1'b0;
+        load = 1'b0;
+
+        case (current_state)
+            S_LOAD_Y: begin
+            	enable = 1'b0;
+               	writeEN = 1'b0;
+               	load = 1'b0;
+                end
+            S_LOAD_X: begin
+                enable = 1'b0;
+               	writeEN = 1'b0;
+               	load = 1'b1;
+                end
+            S_PLOT: begin
+                enable = 1'b1;
+               	writeEN = 1'b1;
+                end
+            end
+        // default:    // don't need default since we already made sure all of our outputs were assigned a value at the start of the always block
+        endcase
+    end // enable_signals
+   
+    // current_state registers
+    always@(posedge clk)
+    begin: state_FFs
+        if(!resetn)
+            current_state <= S_LOAD_Y;
+        else
+            current_state <= next_state;
+    end // state_FFS
+endmodule
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+module datapath(
+    input clk,
+    input resetn,
+    input data_in,
+    input load,
+    input colour,
+    input enable,
+    output X,
+    output Y,
+    output COL,
+    output counter
+    );
+   
+   	output [3:0] counter; 
+
+   	// input registers
+    reg [6:0] x, y;
+
+    // Registers a, b, c, x with respective input logic
+    always@(posedge clk) begin
+        if(!resetn) begin
+            x <= 7'b0; 
+            y <= 7'b0; 
+        end
+        else begin
+            if(load == 1'b0)
+                y <= data_in;
+            if(load == 1'b1)
+                x <= data_in; // load alu_out if load_alu_out signal is high, otherwise load from data_in
+        end
+    end
+   
+   	up_counter c0 (
+   		.out(counter),
+   		.enable(enable),
+   		.clk(clk),
+   		.reset(resetn)
+   	);
+
+   	assign X = x + counter[1:0];
+   	assign Y = y + counter[3:2];
+
+endmodule
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+module joystick_direction ();
+
+endmodule 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// https://www.fpga4student.com/2017/08/verilog-code-for-clock-divider-on-fpga.html
+// fpga4student.com: FPGA projects, VHDL projects, Verilog projects
+// Verilog project: Verilog code for clock divider on FPGA
+// Top level Verilog code for clock divider on FPGA
+module Clock_divider(clock_in, clock_out);
+
+    input clock_in; // input clock on FPGA
+    output clock_out; // output clock after dividing the input clock by divisor
+
+    reg[27:0] counter=28'd0;
+    parameter DIVISOR = 28'd50000000;
+
+
+    // The frequency of the output clk_out
+    //  = The frequency of the input clk_in divided by DIVISOR
+    // For example: Fclk_in = 50Mhz, if you want to get 1Hz signal to blink LEDs
+    // You will modify the DIVISOR parameter value to 28'd50.000.000
+    // Then the frequency of the output clk_out = 50Mhz/50.000.000 = 1Hz
+    always @(posedge clock_in)
+    begin
+        counter <= counter + 28'd1;
+        if(counter>=(DIVISOR-1))
+            counter <= 28'd0;
+    end
+
+    assign clock_out = (counter<DIVISOR/2)?1'b0:1'b1;
+endmodule
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+module snake_body_counter(
+    out,  // Output of the counter
+    enable,  // enable for counter
+    clk,  // clock Input
+    reset  // reset Input
+    );
+    
+    output reg integer out;
+    
+    input enable, clk, reset;
+    
+    always @(posedge clk)
+    begin
+        if (!reset) begin
+            out = 0;
+        end 
+        else if (enable) begin
+            out = out + 1;
+        end
+    end
+endmodule

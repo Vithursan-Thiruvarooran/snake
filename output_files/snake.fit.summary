@@ -1,0 +1,16 @@
+Fitter Status : Successful - Wed Apr  3 19:54:45 2019
+Quartus Prime Version : 16.0.0 Build 211 04/27/2016 SJ Lite Edition
+Revision Name : snake
+Top-level Entity Name : snake
+Family : Cyclone IV E
+Device : EP4CE115F29C7
+Timing Models : Final
+Total logic elements : 274 / 114,480 ( < 1 % )
+    Total combinational functions : 264 / 114,480 ( < 1 % )
+    Dedicated logic registers : 93 / 114,480 ( < 1 % )
+Total registers : 93
+Total pins : 67 / 529 ( 13 % )
+Total virtual pins : 0
+Total memory bits : 57,600 / 3,981,312 ( 1 % )
+Embedded Multiplier 9-bit elements : 0 / 532 ( 0 % )
+Total PLLs : 1 / 4 ( 25 % )
